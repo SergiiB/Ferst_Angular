@@ -11,6 +11,7 @@
 
     vm.header = "TOTOLIST";
     vm.btnText = "ADD";
+    vm.activeFilter = "all";
     vm.items = [
       {
         name: "First",
