@@ -38,7 +38,7 @@
       <div class="output">
         <ul>
             <li class="toto-item form-group" ng-repeat = "item in main.items">
-                <input type="checkbox" ng-model = "item.completed" />
+                <input type="checkbox" ng-model = "item.completed" ng-click = "main.getCompleted($event, item.id)='todo-list'" />
                 <span class="todo-item-title">{{item.name}}</span>
                 <div class="btn btn-danger" ng-click = "main.deleteItem($event, item.id)">Delete</div>
             </li>
