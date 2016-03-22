@@ -1,7 +1,13 @@
-<ul>
-    <li class="toto-item form-group" ng-repeat = "item in main.items">
-        <input type="checkbox" ng-model = "item.completed" />
-        <span class="todo-item-title" ng-class = "{completed: item.completed}">{{item.name}}</span>
-        <div class="btn btn-danger" ng-click = "main.deleteItem($event, item.id)">Delete</div>
+<section id="main" ng-show="vm.items.length">
+  <input id="toggle-all" type="checkbox" ng-model="vm.allChecked" ng-click="vm.markAll(vm.allChecked)">
+  <label for="toggle-all">Mark all as complete</label>
+  <ul id="todo-list">
+    <li ng-repeat="item in vm.items | filter: vm.statusFilter track by $index" ng-class="{completed: item.completed}">
+      <div class="view">
+        <input class="toggle" type="checkbox" ng-model="item.completed" ng-change="vm.toggleCompleted()">
+        <label>{{item.name}} </label>
+        <button class="destroy" ng-click="vm.deleteItem(item)"></button>
+      </div>
     </li>
-</ul>
+  </ul>
+</section>

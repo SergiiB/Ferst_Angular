@@ -1,66 +1,89 @@
-(function() {
+(function () {
   'use strict';
 
   angular
     .module('levelUpAngular')
     .controller('MainController', MainController);
 
-  /** @ngInject */
-  function MainController() {
+
+  function MainController($scope, $filter, toDoModel) {
     var vm = this;
 
-    vm.header = "TOTOLIST";
-    vm.btnText = "ADD";
-    vm.activeFilter = "all";
-    vm.items = [
-      {
-        name: "First",
-        completed: false,
-        id: 0
-      },
-      {
-        name: "Second",
-        completed: false,
-        id: 1
-      },
-      ]
-    vm.newTodo = "Test todo";
-    
-    vm.addItem = function (e) {
-      var model = null;
+    vm.items = [];
 
-      if(e.keyCode === 13 || e.type === "click") {
-        model = {
-          name: vm.newTodo,
-          completed: false,
-          id: generateId()
-        };
+    toDoModel.getAllItems()
+      .then(function (response) {
+        vm.items = response.data;
+      }, function (reject) {
+        console.log(reject);
+      });
+
+    vm.statusFilter = {};
+    vm.newTodo = null;
+
+    vm.status = '';
+
+    $scope.$watch(function () {
+      return vm.items;
+    }, function () {
+      vm.remainingCount = $filter('filter')(vm.items, { completed: false }).length;
+      vm.completedCount = vm.items.length - vm.remainingCount;
+      vm.allCompleted = !vm.remainingCount;
+    }, true);
+
+
+    vm.addItem = function () {
+      var model = {
+        name: vm.newTodo,
+        completed: false,
+        id: generateId()
+      };
+
       vm.items.push(model);
       vm.newTodo = null;
-      }
     };
 
-    vm.deleteItem = function (e, id) {
-      var currentIndex = this.items.indexOf(this.items.filter(function (item) {
-            return item.id === parseInt(id);
-      })[0]);
-
-      vm.items.splice(currentIndex, 1);
+    vm.deleteItem = function (item) {
+      vm.items.splice(vm.items.indexOf(item), 1);
     };
 
-    vm.getCompleted = function (e, id) {
-      console.log(id);
-        
-      var currentIndex = this.items.indexOf(this.items.filter(function (item) {
-          return item.id === parseInt(id);
-      })[0]);
-
-      this.items[currentIndex].completed = !this.items[currentIndex].completed;
+    vm.toggleCompleted = function () {
+      vm.remainingCount = toCountComleted();
     };
 
-    function generateId () {
-        return Math.floor((1 + Math.random()) * 0x10000);
+    vm.changeFilter = function (filter) {
+      vm.status = filter;
+
+      vm.statusFilter = (vm.status === 'active')
+        ? { completed: false }
+        : (vm.status === 'completed')
+        ? { completed: true }
+        : {};
+    };
+
+    vm.markAll = function (completed) {
+      completed = !completed;
+      vm.items.forEach(function (item) {
+        if (item.completed !== completed) {
+          item.completed = completed;
+
+        }
+        vm.toggleCompleted();
+      });
+    };
+
+    vm.clearCompleted = function () {
+      vm.items = vm.items.filter(function (item) {
+        return !item.completed;
+      })
+    };
+
+    function generateId() {
+      return Math.floor((1 + Math.random()) * 0x10000);
     }
 
+    function toCountComleted () {
+     return $filter('filter')(vm.items, { completed: false }).length;
+    }
   }
 })();
